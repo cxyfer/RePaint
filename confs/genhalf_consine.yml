@@ -80,7 +80,7 @@ data:
       batch_size: 1 # batch size
       return_dataloader: true
       offset: 0
-      max_len: 8
+      max_len: 8 # max dataloader length
       paths: # output path
         srs: ./log/genhalf_consine/inpainted 
         lrs: ./log/genhalf_consine/gt_masked
