@@ -14,6 +14,8 @@
 #
 # This repository was forked from https://github.com/openai/guided-diffusion, which is under the MIT license
 
+import numpy as np
+
 def get_schedule(t_T, t_0, n_sample, n_steplength, debug=0):
     if n_steplength > 1:
         if not n_sample > 1:
@@ -68,13 +70,38 @@ def _plot_times(x, times):
 
 
 def get_schedule_jump(t_T, n_sample, jump_length, jump_n_sample,
+                      resampling_scheduler="cosine",
                       jump2_length=1, jump2_n_sample=1,
                       jump3_length=1, jump3_n_sample=1,
                       start_resampling=100000000):
+    """
+    param jump_length: jump_length j
+    param jump_n_sample: resampling r
+    """
+
+    assert resampling_scheduler in ["default", "warmup", "linear", "cosine"]
 
     jumps = {}
-    for j in range(0, t_T - jump_length, jump_length):
-        jumps[j] = jump_n_sample - 1
+
+    warm_up = 0
+    def cosine_scheduler(t):
+        return round(jump_n_sample * np.cos((t / t_T) * (np.pi / 2))) - 1
+    def linear_scheduler(t):
+        return round((1 - t / t_T) * jump_n_sample) - 1
+
+    # for j in range(0, t_T - jump_length, jump_length):
+    for j in range(t_T - jump_length * 2, -1, -jump_length):
+        if resampling_scheduler == "default":
+            jumps[j] = jump_n_sample - 1 # 還需要的 resampling 次數
+        elif resampling_scheduler == "warmup":
+            jumps[j] = warm_up
+            warm_up = min(warm_up + 1, jump_n_sample - 1)
+        elif resampling_scheduler == "cosine":
+            jumps[j] = max(0, cosine_scheduler(j))
+        elif resampling_scheduler == "linear":
+            jumps[j] = max(0, linear_scheduler(j))
+        else:
+            raise NotImplementedError()
 
     jumps2 = {}
     for j in range(0, t_T - jump2_length, jump2_length):
@@ -177,12 +204,6 @@ def get_schedule_jump_paper():
 
 
 def get_schedule_jump_test(to_supplement=False):
-    ts = get_schedule_jump(t_T=250, n_sample=1,
-                           jump_length=10, jump_n_sample=10,
-                           jump2_length=1, jump2_n_sample=1,
-                           jump3_length=1, jump3_n_sample=1,
-                           start_resampling=250)
-
     import matplotlib.pyplot as plt
     SMALL_SIZE = 8*3
     MEDIUM_SIZE = 10*3
@@ -196,14 +217,22 @@ def get_schedule_jump_test(to_supplement=False):
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    plt.plot(ts)
+    for scheduler in ["default", "warmup", "cosine", "linear"]:
+        ts = get_schedule_jump(t_T=250, n_sample=1,
+                            jump_length=10, jump_n_sample=10,
+                            resampling_scheduler=scheduler,
+                            jump2_length=1, jump2_n_sample=1,
+                            jump3_length=1, jump3_n_sample=1,
+                            start_resampling=250)
+        plt.plot(ts, label=f"{scheduler} ({len(ts)-1})")
 
     fig = plt.gcf()
     fig.set_size_inches(20, 10)
 
     ax = plt.gca()
-    ax.set_xlabel('Number of Transitions')
+    ax.set_xlabel(f"Number of Transitions")
     ax.set_ylabel('Diffusion time $t$')
+    ax.legend()
 
     fig.tight_layout()
 
@@ -211,14 +240,14 @@ def get_schedule_jump_test(to_supplement=False):
         out_path = "/cluster/home/alugmayr/gdiff/paper/supplement/figures/jump_sched.pdf"
         plt.savefig(out_path)
 
-    out_path = "./schedule.png"
+    out_path = f"./schedule.png"
     plt.savefig(out_path)
+
     print(out_path)
 
 
 def main():
     get_schedule_jump_test()
-
 
 if __name__ == "__main__":
     main()
