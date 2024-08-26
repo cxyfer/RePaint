@@ -53,7 +53,7 @@ latex_name: RePaint
 method_name: Repaint
 image_size: 256
 model_path: ./data/pretrained/celeba256_250000.pt
-name: thin_consine # task name
+name: thin_cosine # task name
 inpa_inj_sched_prev: true
 n_jobs: 1
 print_estimated_vars: true
@@ -82,7 +82,7 @@ data:
       offset: 0
       max_len: 8 # max dataloader length
       paths: # output path
-        srs: ./log/thin_consine/inpainted 
-        lrs: ./log/thin_consine/gt_masked
-        gts: ./log/thin_consine/gt
-        gt_keep_masks: ./log/thin_consine/gt_keep_mask
+        srs: ./log/thin_cosine/inpainted 
+        lrs: ./log/thin_cosine/gt_masked
+        gts: ./log/thin_cosine/gt
+        gt_keep_masks: ./log/thin_cosine/gt_keep_mask
