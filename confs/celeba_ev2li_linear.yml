@@ -53,7 +53,7 @@ latex_name: RePaint
 method_name: Repaint
 image_size: 256
 model_path: ./data/pretrained/celeba256_250000.pt
-name: genhalf_consine # task name
+name: ev2li_linear # task name
 inpa_inj_sched_prev: true
 n_jobs: 1
 print_estimated_vars: true
@@ -63,13 +63,13 @@ schedule_jump_params:
   n_sample: 1
   jump_length: 10
   jump_n_sample: 10
-  resampling_scheduler: cosine # resampling scheduler
+  resampling_scheduler: linear # resampling scheduler
 data:
   eval:
     paper_face_mask:
       mask_loader: true
-      gt_path: ./data/datasets/gts/test
-      mask_path: ./data/datasets/gt_keep_masks/genhalf
+      gt_path: ./data/datasets/gts/test # gt path
+      mask_path: ./data/datasets/gt_keep_masks/ev2li # mask path
       image_size: 256
       class_cond: false
       deterministic: true
@@ -77,12 +77,12 @@ data:
       random_flip: false
       return_dict: true
       drop_last: false
-      batch_size: 1 # batch size
+      batch_size: 8 # batch size
       return_dataloader: true
       offset: 0
       max_len: 8 # max dataloader length
       paths: # output path
-        srs: ./log/genhalf_consine/inpainted 
-        lrs: ./log/genhalf_consine/gt_masked
-        gts: ./log/genhalf_consine/gt
-        gt_keep_masks: ./log/genhalf_consine/gt_keep_mask
+        srs: ./log/ev2li_linear/inpainted 
+        lrs: ./log/ev2li_linear/gt_masked
+        gts: ./log/ev2li_linear/gt
+        gt_keep_masks: ./log/ev2li_linear/gt_keep_mask
