@@ -68,6 +68,7 @@ def _plot_times(x, times):
     plt.plot(x, times)
     plt.show()
 
+jump_records = {}
 
 def get_schedule_jump(t_T, n_sample, jump_length, jump_n_sample,
                       resampling_scheduler="cosine",
@@ -102,6 +103,8 @@ def get_schedule_jump(t_T, n_sample, jump_length, jump_n_sample,
             jumps[j] = max(0, linear_scheduler(j))
         else:
             raise NotImplementedError()
+        
+    jump_records[resampling_scheduler] = jumps.copy()
 
     jumps2 = {}
     for j in range(0, t_T - jump2_length, jump2_length):
@@ -242,12 +245,37 @@ def get_schedule_jump_test(to_supplement=False):
 
     out_path = f"./schedule.png"
     plt.savefig(out_path)
+    plt.close()
 
     print(out_path)
 
 
+def visualize_jump_records(jump_n_sample=10, t_T=250):
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(10, 6))
+
+    def cosine_scheduler(t):
+        return jump_n_sample * np.cos((t / t_T) * (np.pi / 2)) - 1
+    def linear_scheduler(t):
+        return (1 - t / t_T) * jump_n_sample - 1
+    
+    for scheduler, jumps in jump_records.items():
+        if scheduler == "cosine":
+            values = [cosine_scheduler(t) + 1 for t in jumps.keys()]
+        elif scheduler == "linear":
+            values = [linear_scheduler(t) + 1 for t in jumps.keys()]
+        else:
+            values = [v + 1 for v in jumps.values()]
+        plt.plot(jumps.keys(), values, label=scheduler)
+    plt.legend()
+    plt.savefig("jump_records.png")
+    plt.close()
+
+    
+
 def main():
     get_schedule_jump_test()
+    visualize_jump_records()
 
 if __name__ == "__main__":
     main()
