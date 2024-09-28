@@ -1,6 +1,15 @@
+# NYCU DLP 2024 Summer Final Project
+
+This is a modified version of RePaint. We add different schedulers to try to solve the computational efficiency problem.
+
+Heavily borrowed from RePaint. Huge thanks to them!
+
+![](./guided_diffusion/schedule.png)
+
+---
+
 # RePaint
 **Inpainting using Denoising Diffusion Probabilistic Models**
-
 
 CVPR 2022 [[Paper]](https://bit.ly/3b1ABEb)
 
