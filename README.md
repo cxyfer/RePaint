@@ -1,4 +1,4 @@
-# NYCU DLP 2024 Summer Final Project
+# DLP Final Project
 
 This is a modified version of RePaint. We add different schedulers to try to solve the computational efficiency problem.
 
